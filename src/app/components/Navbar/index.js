@@ -12,20 +12,25 @@ const Navbar = () => {
 
           <ul className='flex items-center space-x-6'>
             <li>
-              <a href='#home' className='text-gray-700 hover:text-gray-900'>Home</a>
-              </li>
+              <Link href='#home' className='text-gray-700 hover:text-gray-900'>Home</Link>
+            </li>
             <li>
-              <a href='#about' className='text-gray-700 hover:text-gray-900'>About Us</a>
-              </li>
+              <Link href='#about' className='text-gray-700 hover:text-gray-900'>About Us</Link>
+            </li>
             <li>
-              <a href='#features' className='text-gray-700 hover:text-gray-900'>Features</a>
-              </li>
+              <Link href='#features' className='text-gray-700 hover:text-gray-900'>Features</Link>
+            </li>
             <li>
-              <a href='#'className='button-bg-secondary text-white px-4 py-2 rounded-md'>Contact Us</a></li>
+              <Link href='#' className='text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md'>Contact Us</Link>
+            </li>
+            <li>
+              <Link href='src/app/Auth/login' className='button-bg-secondary text-white px-4 py-2 rounded-md'>
+                Login
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>
-
     </section>
   )
 }

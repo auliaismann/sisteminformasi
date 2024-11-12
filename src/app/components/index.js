@@ -9,6 +9,5 @@ export {
   Navbar,
   Aboutus,
   Features,
-  Footer,
-  
+  Footer
 }
