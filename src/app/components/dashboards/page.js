@@ -1,4 +1,4 @@
-'use client';  // Ensure this is a client-side component
+'use client'; // Komponen hanya dijalankan di sisi klien
 
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,13 +8,13 @@ import Header from './Header';
 import NoteCard from './NoteCard';
 
 function Dashboard() {
-    const [notes, setNotes] = useState([]);  // Stores notes to display
-    const [title, setTitle] = useState('');  // Stores note title
-    const [content, setContent] = useState('');  // Stores note content
-    const [category, setCategory] = useState('');  // Selected category
-    const [categories, setCategories] = useState([]);  // List of categories
-    const [isLoading, setIsLoading] = useState(true);  // Set initial loading state to true
-    const [editingNote, setEditingNote] = useState(null);  // Stores the note that is being edited
+    const [notes, setNotes] = useState([]);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [category, setCategory] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [editingNote, setEditingNote] = useState(null);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -28,21 +28,34 @@ function Dashboard() {
         'Goals',
     ];
 
-    // Effect to fetch categories and notes from Firebase
+    // Mengambil data catatan dari Firebase
     useEffect(() => {
         if (user) {
             const notesRef = ref(db, `notes/${user.uid}`);
             onValue(notesRef, (snapshot) => {
                 const notesData = snapshot.val() || {};
-                const loadedNotes = Object.keys(notesData).map(key => {
-                    return { id: key, ...notesData[key] };  // Add ID to each note
+                const loadedNotes = [];
+
+                Object.keys(notesData).forEach((category) => {
+                    const categoryNotes = notesData[category];
+                    Object.keys(categoryNotes).forEach((noteId) => {
+                        loadedNotes.push({
+                            noteId,
+                            ...categoryNotes[noteId],
+                            category,
+                        });
+                    });
                 });
+
                 setNotes(loadedNotes);
-                setIsLoading(false);  // Set loading state to false after fetching data
+                setIsLoading(false);
             });
+        } else {
+            setIsLoading(false);
         }
     }, [user]);
 
+    // Menambahkan catatan baru
     const addNote = (e) => {
         e.preventDefault();
         if (!title || !content || !category) {
@@ -63,51 +76,56 @@ function Dashboard() {
             category,
         };
 
-        // Save the new note under the user's uid and category
-        const notesRef = ref(db, `notes/${user.uid}/${category}/${newNote.id}`);
-        push(notesRef, newNote).then(() => {
-            setNotes([...notes, newNote]); // Update the local state with the new note
-            setTitle('');
-            setContent('');
-            setCategory('');
-        }).catch((error) => {
-            console.error('Error adding note:', error);
-        });
+        const notesRef = ref(db, `notes/${user.uid}/${category}`);
+        push(notesRef, newNote)
+            .then(() => {
+                setNotes([...notes, newNote]);
+                setTitle('');
+                setContent('');
+                setCategory('');
+            })
+            .catch((error) => console.error('Error adding note:', error));
     };
 
+    // Mengupdate catatan
     const updateNote = (e) => {
         e.preventDefault();
-        if (!title || !content || !category || !editingNote) {
-            alert('Title, content, category, and note are required!');
+        if (!title || !content) {
+            alert('Title and content are required!');
             return;
         }
-
+    
         if (!user) {
-            alert('You must be logged in to edit notes.');
+            alert('You must be logged in to update notes.');
             return;
         }
-
+    
+        // Menggunakan ID catatan yang sudah ada (noteId)
         const updatedNote = {
+            noteId: editingNote.noteId, // Pastikan menggunakan noteId yang sudah ada
             title,
             content,
-            category,
+            userId: user.uid,
+            category: editingNote.category,
         };
-
-        // Firebase update reference
-        const noteRef = ref(db, `notes/${user.uid}/${category}/${editingNote.id}`);
-        update(noteRef, updatedNote).then(() => {
-            // Update the local state
-            setNotes(notes.map(note => note.id === editingNote.id ? { ...note, ...updatedNote } : note));
-            setEditingNote(null);  // Reset editing note state
-            setTitle('');
-            setContent('');
-            setCategory('');
-        }).catch((error) => {
-            console.error('Error updating note:', error);
-        });
+    
+        const noteRef = ref(db, `notes/${user.uid}/${editingNote.category}/${editingNote.noteId}`);
+        update(noteRef, updatedNote)
+            .then(() => {
+                // Update state dengan data yang baru tanpa menambahkan data baru
+                const updatedNotes = notes.map((note) =>
+                    note.noteId === editingNote.noteId ? { ...note, ...updatedNote } : note
+                );
+                setNotes(updatedNotes);
+                setTitle('');
+                setContent('');
+                setEditingNote(null);
+            })
+            .catch((error) => console.error('Error updating note:', error));
     };
+    
 
-    // Function to delete a note
+    // Menghapus catatan
     const deleteNote = (noteId, category) => {
         if (!user) {
             alert('You must be logged in to delete notes.');
@@ -115,18 +133,19 @@ function Dashboard() {
         }
 
         const noteRef = ref(db, `notes/${user.uid}/${category}/${noteId}`);
-        remove(noteRef).then(() => {
-            setNotes(notes.filter((note) => note.id !== noteId)); // Update local state
-        }).catch((error) => {
-            console.error('Error deleting note:', error);
-        });
+        remove(noteRef)
+            .then(() => {
+                const remainingNotes = notes.filter((note) => note.noteId !== noteId);
+                setNotes(remainingNotes);
+            })
+            .catch((error) => console.error('Error deleting note:', error));
     };
 
+    // Mengedit catatan
     const handleEdit = (note) => {
         setEditingNote(note);
         setTitle(note.title);
         setContent(note.content);
-        setCategory(note.category);
     };
 
     return (
@@ -135,26 +154,31 @@ function Dashboard() {
 
             <div className="p-4">
                 {isLoading ? (
-                    <div>Loading...</div>  // Show loading state while fetching data
+                    <div>Loading...</div>
                 ) : notes.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {notes.filter(note => note.category === category || category === '').map((note) => (
-                            <NoteCard
-                                key={note.id}
-                                title={note.title}
-                                category={note.category}
-                                content={note.content}
-                                onDelete={() => deleteNote(note.id, note.category)}  // Pass delete handler to NoteCard
-                                onEdit={() => handleEdit(note)}  // Pass edit handler to NoteCard
-                            />
-                        ))}
+                        {notes
+                            .filter((note) => note.category === category || category === '')
+                            .map((note) => (
+                                <NoteCard
+                                    key={note.noteId}
+                                    title={note.title}
+                                    category={note.category}
+                                    content={note.content}
+                                    onDelete={() => deleteNote(note.noteId, note.category)}
+                                    onEdit={() => handleEdit(note)}
+                                />
+                            ))}
                     </div>
                 ) : (
                     <div>No notes available</div>
                 )}
             </div>
 
-            <form onSubmit={editingNote ? updateNote : addNote} className="p-4 bg-white rounded-lg shadow-md">
+            <form
+                onSubmit={editingNote ? updateNote : addNote}
+                className="p-4 bg-white rounded-lg shadow-md"
+            >
                 <input
                     type="text"
                     value={title}
@@ -162,28 +186,33 @@ function Dashboard() {
                     placeholder="Note Title"
                     className="w-full p-3 mb-2 rounded-lg text-black bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 />
-                
+
                 <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Note Content"
                     className="w-full p-3 mb-4 rounded-lg text-black bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 />
-                
-                <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-3 mb-4 rounded-lg text-black bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                >
-                    <option value="" disabled>Select Category</option>
-                    {[...predefinedCategories, ...categories].map((cat, index) => (
-                        <option key={index} value={cat}>
-                            {cat}
-                        </option>
-                    ))}
-                </select>
 
-                <button type="submit" className="bg-yellow-400 text-slate-800 p-3 rounded-lg w-full hover:bg-slate-700 hover:text-white transition-all">
+                {!editingNote && (
+                    <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="w-full p-3 mb-4 rounded-lg text-black bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    >
+                        <option value="" disabled>Select Category</option>
+                        {[...predefinedCategories, ...categories].map((cat, index) => (
+                            <option key={index} value={cat}>
+                                {cat}
+                            </option>
+                        ))}
+                    </select>
+                )}
+
+                <button
+                    type="submit"
+                    className="bg-yellow-400 text-slate-800 p-3 rounded-lg w-full hover:bg-slate-700 hover:text-white transition-all"
+                >
                     {editingNote ? 'Update Note' : 'Add Note'}
                 </button>
             </form>
