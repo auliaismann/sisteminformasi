@@ -1,60 +1,32 @@
-import React, { useState } from 'react';
-import Note from './Note';
+import React from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import NoteCard from './Notecard';
 
 const Dashboard = () => {
-    const [notes, setNotes] = useState([]);
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-
-    // Fungsi untuk menambahkan catatan
-    const addNote = (e) => {
-        e.preventDefault();
-        if (!title || !content) {
-            alert("Title and content are required!");
-            return;
-        }
-        const newNote = { id: Date.now(), title, content }; // menggunakan ID unik
-        setNotes([...notes, newNote]);
-        setTitle('');
-        setContent('');
-    };
+    const notes = [
+        { title: 'Client Meeting Review', category: 'Work', time: '09:38PM', date: '07 JANUARY 2021', content: 'Lorem ipsum dolor sit amet...' },
+        { title: 'Water Supply Chain Power', category: 'Wishlist', time: '02:45AM', date: '22 DECEMBER 2020', content: 'Lorem ipsum dolor sit amet...' },
+        // Tambahkan catatan lain sesuai kebutuhan
+    ];
 
     return (
-        <div className="dashboard-container">
-            <h1 className="text-xl font-bold mb-4">Dashboard</h1>
-            <form onSubmit={addNote} className="mb-6">
-                <div className="mb-4">
-                    <input 
-                        type="text" 
-                        placeholder="Title" 
-                        value={title} 
-                        onChange={(e) => setTitle(e.target.value)} 
-                        className="border p-2 w-full rounded-md"
-                    />
+        <div className="flex h-screen bg-gray-900 text-gray-200">
+            <Sidebar />
+            <div className="flex flex-col flex-1">
+                <Header />
+                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {notes.map((note, index) => (
+                        <NoteCard 
+                            key={index}
+                            title={note.title}
+                            category={note.category}
+                            time={note.time}
+                            date={note.date}
+                            content={note.content}
+                        />
+                    ))}
                 </div>
-                <div className="mb-4">
-                    <textarea 
-                        placeholder="Content" 
-                        value={content} 
-                        onChange={(e) => setContent(e.target.value)} 
-                        className="border p-2 w-full rounded-md"
-                    ></textarea>
-                </div>
-                <button 
-                    type="submit" 
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                >
-                    Add Note
-                </button>
-            </form>
-            <div className="notes-list">
-                {notes.length > 0 ? (
-                    notes.map((note) => (
-                        <Note key={note.id} title={note.title} content={note.content} />
-                    ))
-                ) : (
-                    <p>No notes available. Add a note to get started.</p>
-                )}
             </div>
         </div>
     );
