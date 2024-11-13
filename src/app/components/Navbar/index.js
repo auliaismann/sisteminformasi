@@ -24,7 +24,7 @@ const Navbar = () => {
               <Link href='#' className='text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md'>Contact Us</Link>
             </li>
             <li>
-              <Link href='src/app/Auth/login' className='button-bg-secondary text-white px-4 py-2 rounded-md'>
+              <Link href='/Auth/login' className='button-bg-secondary text-white px-4 py-2 rounded-md'>
                 Login
               </Link>
             </li>

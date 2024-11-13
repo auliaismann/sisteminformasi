@@ -1,13 +1,12 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth"; // Tambahkan impor ini
-import { getFirestore } from "firebase/firestore"; // Jika Anda menggunakan Firestore
+import { getDatabase, ref, onValue, push, remove, update } from "firebase/database"; // Import untuk Realtime Database
+import { getAuth } from 'firebase/auth'; // Untuk Auth
 
-// Your web app's Firebase configuration
+// Konfigurasi Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyD0YxycKoilFPH3z19cKj0S3h5JmGDz0Eg",
   authDomain: "sisfor-632e9.firebaseapp.com",
+  databaseURL: "https://sisfor-632e9-default-rtdb.firebaseio.com",
   projectId: "sisfor-632e9",
   storageBucket: "sisfor-632e9.firebasestorage.app",
   messagingSenderId: "114798850925",
@@ -15,15 +14,9 @@ const firebaseConfig = {
   measurementId: "G-5STR8CVG3J"
 };
 
-// Initialize Firebase
+// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const db = getDatabase(app);
+const auth = getAuth(app);  // Initialize auth
 
-// Inisialisasi Auth
-const auth = getAuth(app);
-
-// Jika Anda juga menggunakan Firestore
-const db = getFirestore(app);
-
-export { auth, db };  // Ekspor auth dan db
-export default app;
+export { db, ref, onValue, push, remove, update, auth }; // Export auth as well
