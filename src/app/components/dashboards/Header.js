@@ -1,38 +1,39 @@
 'use client';  // Ensure this is a client-side component
 
-import { useState, useEffect } from 'react';  // Import useState and useEffect
-import { useRouter } from 'next/navigation';  // Import from next/navigation
-import { getAuth, onAuthStateChanged } from 'firebase/auth';  // Import from Firebase
-import Image from 'next/image';  // Import Image for logo
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { db, ref, onValue } from '../../../../config/firebase'; // Import Realtime Database
+import Image from 'next/image';
 import { logo2 } from '../../../../public';  // Import logo image (adjust the path as needed)
 
 const Header = () => {
     const router = useRouter();
     const [user, setUser] = useState(null);  // State to store user information
+    const auth = getAuth();
 
-    // Fetch user data after component mounts
     useEffect(() => {
-        const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
-                // Set user data if logged in
-                setUser({
-                    displayName: currentUser.displayName,
-                    photoURL: currentUser.photoURL,
+                // Fetch additional user info from Realtime Database
+                const userRef = ref(db, `users/${currentUser.uid}`);
+                onValue(userRef, (snapshot) => {
+                    const userData = snapshot.val();
+                    setUser({
+                        displayName: userData?.displayName || currentUser.displayName,  // Merge data
+                        photoURL: userData?.photoURL || currentUser.photoURL,  // Merge data
+                    });
                 });
             } else {
-                // Set user to null if not logged in
                 setUser(null);
             }
         });
 
-        // Clean up the subscription on component unmount
         return () => unsubscribe();
-    }, []);
+    }, [auth]);
 
     const handleProfileClick = () => {
-        // Navigate to profile page
-        router.push('/profile');  // Update '/profile' with your actual profile page route
+        router.push('/components/profil'); 
     };
 
     return (
