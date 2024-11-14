@@ -19,7 +19,7 @@ const AboutUs = () => {
             <p className="text-gray-600 mb-4">
               To empower individuals to organize their knowledge, connect with others, and unlock new opportunities for learning.
             </p>
-            <a href="#contact" className="text-yellow-400 hover:text-purple-900 font-semibold">Learn More</a>
+            <a href="/components/ContactUs" className="text-yellow-400 hover:text-purple-900 font-semibold">Learn More</a>
           </div>
 
           {/* Vision */}
@@ -31,7 +31,7 @@ const AboutUs = () => {
             <p className="text-gray-600 mb-4">
               To become the leading platform for knowledge sharing, fostering a community of lifelong learners.
             </p>
-            <a href="#contact" className="text-yellow-400 hover:text-purple-900 font-semibold">Learn More</a>
+            <a href="/components/ContactUs" className="text-yellow-400 hover:text-purple-900 font-semibold">Learn More</a>
           </div>
 
           {/* Values */}
@@ -43,7 +43,7 @@ const AboutUs = () => {
             <p className="text-gray-600 mb-4">
               Integrity, collaboration, and innovation are at the core of everything we do, driving us to continuously improve and innovate.
             </p>
-            <a href="#contact" className="text-yellow-400 hover:text-purple-900 font-semibold">Learn More</a>
+            <a href="/components/ContactUs" className="text-yellow-400 hover:text-purple-900 font-semibold">Learn More</a>
           </div>
         </div>
       </div>

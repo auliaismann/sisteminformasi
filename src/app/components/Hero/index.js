@@ -10,7 +10,7 @@ const Hero = () => {
         <p className="text-lg md:text-xl mb-10 text-">
           Start using EduNotes today and take control of your learning experience.
         </p>
-        <a href="#" className="button-cta bg-yellow-400 text-purple-900 px-8 py-3 rounded-full text-lg font-semibold hover:bg-purple-900 hover:text-white transition-all">
+        <a href="/components/ContactUs" className="button-cta bg-yellow-400 text-purple-900 px-8 py-3 rounded-full text-lg font-semibold hover:bg-purple-900 hover:text-white transition-all">
           Learn More
         </a>
       </div>
