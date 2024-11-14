@@ -1,22 +1,19 @@
 'use client';  // This ensures that the component is treated as client-side
 
 import React, { useState, useEffect } from 'react';
-import { getAuth, signOut, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { db, ref, onValue, update } from '../../../../config/firebase';
 import Header from '../dashboards/Header';
 import { useRouter } from 'next/navigation';
 
 function Profile() {
     const [userInfo, setUserInfo] = useState({
-        displayName: '',
+        displayName: '',  // Start with an empty displayName
         email: '',
     });
     const [isEditing, setIsEditing] = useState(false);
     const [newDisplayName, setNewDisplayName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [isEditingPassword, setIsEditingPassword] = useState(false);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -62,31 +59,6 @@ function Profile() {
             .catch((error) => {
                 console.error('Error logging out:', error);
             });
-    };
-
-    const handleSavePassword = () => {
-        if (user && newPassword && currentPassword) {
-            const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
-            reauthenticateWithCredential(user, credential)
-                .then(() => {
-                    updatePassword(user, newPassword)
-                        .then(() => {
-                            alert('Password updated successfully');
-                            setIsEditingPassword(false);
-                            setCurrentPassword('');
-                            setNewPassword('');
-                        })
-                        .catch((error) => {
-                            console.error('Error updating password:', error);
-                            alert('Error updating password');
-                        });
-                })
-                .catch((error) => {
-                    console.error('Reauthentication failed:', error);
-                    alert('Reauthentication required. Please log in again');
-                });
-        }
     };
 
     return (
@@ -142,41 +114,14 @@ function Profile() {
                             <p>{userInfo.email}</p>
                         </div>
 
-                        {/* Password Section */}
-                        {isEditingPassword && (
-                            <>
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 font-bold mb-2">Current Password:</label>
-                                    <input
-                                        type="password"
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                        className="w-full p-3 rounded-lg text-black bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                                        placeholder="Enter current password"
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 font-bold mb-2">New Password:</label>
-                                    <input
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        className="w-full p-3 rounded-lg text-black bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                                        placeholder="Enter new password"
-                                    />
-                                </div>
-                            </>
-                        )}
-
-                        {/* Buttons - Sejajar */}
-                        <div className="mb-4 flex justify-between space-x-4 w-full">
+                        {/* Conditionally show Save or Edit Name button */}
+                        <div className="mb-4 flex space-x-4">
                             {isEditing ? (
                                 <button
                                     onClick={saveDisplayName}
                                     className="bg-yellow-400 text-slate-800 p-3 rounded-lg hover:bg-slate-700 hover:text-white transition-all"
                                 >
-                                    Save Name
+                                    Save
                                 </button>
                             ) : (
                                 <button
@@ -184,22 +129,6 @@ function Profile() {
                                     className="bg-yellow-400 text-slate-800 p-3 rounded-lg hover:bg-slate-700 hover:text-white transition-all"
                                 >
                                     Edit Name
-                                </button>
-                            )}
-
-                            {isEditingPassword ? (
-                                <button
-                                    onClick={handleSavePassword}
-                                    className="bg-yellow-400 text-slate-800 p-3 rounded-lg hover:bg-slate-700 hover:text-white transition-all"
-                                >
-                                    Save Password
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => setIsEditingPassword(true)}
-                                    className="bg-yellow-400 text-slate-800 p-3 rounded-lg hover:bg-slate-700 hover:text-white transition-all"
-                                >
-                                    Edit Password
                                 </button>
                             )}
 
